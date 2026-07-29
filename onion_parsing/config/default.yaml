@@ -1,0 +1,106 @@
+# OnionParsing Default Configuration
+
+# Coarse-grained layout detection
+coarse_detector:
+  model_name: "PP-DocLayout_plus-L"
+  model_dir: "/path/to/coarse_detection_model"
+  threshold: 0.25
+  target_size: [1240, 1755]
+  layout_merge_bboxes_mode: "large"
+  device: "npu:0"
+
+# Fine-grained layout detection
+fine_detector:
+  model_name: "PP-DocLayout_plus-L"
+  model_dir: "/path/to/fine_detection_model"
+  threshold: 0.1
+  layout_merge_bboxes_mode: "large"
+  area_ratio_threshold: 0.125
+  aspect_ratio_ranges: [[0.15, 0.71], [1.45, 6.8]]
+  smallcrop_scale: [0.2, 0.0667]
+  device: "npu:0"
+
+# XY-Cut sorting
+sorter:
+  scale: [0.0667, 0.6667]
+
+# Cropping
+cropper: {}
+
+# Crop filtering
+crop_filter:
+  ignore_labels: ["header", "advert"]
+
+# Column expansion
+column_expander:
+  threshold: 100
+  depth_threshold: 0.60
+  extra_spacing: 5
+  min_valley_width: 2
+  min_col_width: 18
+  smooth_kernel: 4
+  color_jitter: 2
+
+# Preprocessing
+preprocessor:
+  pad_crop_range: [0.1, 10]
+
+# OCR
+ocr:
+  pipeline_version: "v1.6"
+  vl_rec_backend: "vllm-server"
+  vl_rec_server_url: "http://localhost:8118/v1"
+  vl_rec_max_concurrency: 32
+  vl_rec_fallback_concurrency: 8
+  use_layout_detection: true
+  layout_nms: true
+  layout_threshold:
+    23: 0.1
+    21: 0.85
+    22: 0.2
+    14: 0.8
+  layout_unclip_ratio: [1.1, 1.1]
+  layout_merge_bboxes_mode: "large"
+  device: "npu:0"
+  enable_mkldnn: true
+  cpu_threads: 8
+  timeout: 120
+
+# Postprocessing
+postprocessor: {}
+
+# Reading-order reordering
+reorder:
+  model_path: "/path/to/nsp_model"
+  model_type: "nsp"
+  left_threshold: 200
+  below_threshold: 100
+  below_left_threshold: 1000
+  nsp_threshold: 0.6
+  max_length: 256
+  distance_scale: 500
+  device: "npu:0"
+
+# Aggregation
+aggregator: {}
+
+# Pipeline stages
+pipeline:
+  processors:
+    - coarse_detector
+    - sorter
+    - cropper
+    - crop_filter
+    - fine_detector
+    - column_expander
+    - preprocessor
+    - ocr
+    - postprocessor
+    - reorder
+    - aggregator
+
+# Logging
+logging:
+  level: "INFO"
+  file: "onion_parsing.log"
+  format: "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"

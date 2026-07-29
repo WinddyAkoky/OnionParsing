@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onion-parsing"
+version = "0.1.0"
+description = "A document parsing pipeline that converts PDF/images to structured Markdown via layout detection, OCR, and reading-order reordering."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+authors = [
+    { name = "OnionParsing Team" },
+]
+keywords = ["pdf", "ocr", "document-parsing", "markdown", "layout-detection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+dependencies = [
+    "numpy>=1.21",
+    "opencv-python>=4.5",
+    "Pillow>=9.0",
+    "PyYAML>=6.0",
+    "jieba>=0.42",
+]
+
+[project.optional-dependencies]
+ocr = [
+    "paddleocr>=2.7",
+    "paddlepaddle>=2.4",
+]
+reorder = [
+    "torch>=1.12",
+    "transformers>=4.20",
+]
+npu = [
+    "torch_npu",
+]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "pre-commit>=3.6",
+]
+all = [
+    "onion-parsing[ocr,reorder]",
+]
+
+[project.scripts]
+onion-parsing = "onion_parsing.cli.main:main"
+
+[project.urls]
+Repository = "https://github.com/<your-org>/OnionParsing"
+Issues = "https://github.com/<your-org>/OnionParsing/issues"
+
+[tool.setuptools.packages.find]
+include = ["onion_parsing*"]
+
+[tool.setuptools.package-data]
+onion_parsing = ["config/*.yaml", "resources/user.txt"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
