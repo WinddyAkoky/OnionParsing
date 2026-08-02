@@ -17,12 +17,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download Star History SVG
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Render Star History to PNG
         run: |
-          curl -s "https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date" -o star-history.svg
+          node -e '
+          const puppeteer = require("puppeteer");
+          (async () => {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            // 设置高分辨率视口，保证图片清晰
+            await page.setViewport({ width: 800, height: 400, deviceScaleFactor: 2 });
+            await page.goto("https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date", { waitUntil: "networkidle0" });
+            const element = await page.$("svg");
+            if (element) {
+              await element.screenshot({ path: "star-history.png", omitBackground: true });
+            } else {
+              await page.screenshot({ path: "star-history.png" });
+            }
+            await browser.close();
+          })();
+          '
 
       - name: Commit and Push Star History Chart
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update star history chart [skip ci]"
-          file_pattern: 'star-history.svg'
+          file_pattern: 'star-history.png'
