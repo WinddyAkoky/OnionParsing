@@ -17,33 +17,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      - name: Render Star History to PNG
+      - name: Install resvg-cli
         run: |
-          node -e '
-          const puppeteer = require("puppeteer");
-          (async () => {
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            // 设置高分辨率视口，保证图片清晰
-            await page.setViewport({ width: 800, height: 400, deviceScaleFactor: 2 });
-            await page.goto("https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date", { waitUntil: "networkidle0" });
-            const element = await page.$("svg");
-            if (element) {
-              await element.screenshot({ path: "star-history.png", omitBackground: true });
-            } else {
-              await page.screenshot({ path: "star-history.png" });
-            }
-            await browser.close();
-          })();
-          '
+          cargo install resvg
+
+      - name: Download SVG and Convert to PNG
+        run: |
+          # 1. 下载 Star History SVG
+          curl -s "https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date" -o star-history.svg
+          
+          # 2. 将 SVG 转换成高分辨率 PNG (宽度设置为 1200px 保证清晰度)
+          resvg --width 1200 star-history.svg star-history.png
 
       - name: Commit and Push Star History Chart
         uses: stefanzweifel/git-auto-commit-action@v5
