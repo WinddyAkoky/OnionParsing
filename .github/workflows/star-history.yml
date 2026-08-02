@@ -2,7 +2,7 @@ name: Generate Star History Image
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天北京时间早上 8 点自动运行更新
+    - cron: '0 0 * * *' # 每天自动运行更新
   workflow_dispatch: # 允许你手动点击按钮随时运行
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
       - name: Generate Star History Image
         uses: timqian/star-history-action@master
         with:
-          token: ${{ secrets::STAR_HISTORY_TOKEN }}
+          token: ${{ secrets.STAR_HISTORY_TOKEN }}
 
       - name: Commit & Push changes
         uses: Actions-R-Us/push@master
