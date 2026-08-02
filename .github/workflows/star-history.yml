@@ -17,20 +17,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install resvg-cli
-        run: |
-          cargo install resvg
-
-      - name: Download SVG and Convert to PNG
-        run: |
-          # 1. 下载 Star History SVG
-          curl -s "https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date" -o star-history.svg
-          
-          # 2. 将 SVG 转换成高分辨率 PNG (宽度设置为 1200px 保证清晰度)
-          resvg --width 1200 star-history.svg star-history.png
+      - name: Generate Star History SVG
+        uses: star-history/star-history-action@v1.0.1
+        with:
+          # 在仓库设置中可选用 Personal Access Token，但一般默认 GITHUB_TOKEN 就足够
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # 你的仓库路径
+          repositories: 'WinddyAkoky/OnionParsing'
+          # 生成的图片保存路径
+          output: 'star-history.svg'
 
       - name: Commit and Push Star History Chart
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update star history chart [skip ci]"
-          file_pattern: 'star-history.png'
+          file_pattern: 'star-history.svg'
