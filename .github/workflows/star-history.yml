@@ -17,15 +17,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Generate Star History SVG
-        uses: star-history/star-history-action@v1.0.1
-        with:
-          # 在仓库设置中可选用 Personal Access Token，但一般默认 GITHUB_TOKEN 就足够
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # 你的仓库路径
-          repositories: 'WinddyAkoky/OnionParsing'
-          # 生成的图片保存路径
-          output: 'star-history.svg'
+      - name: Download Star History SVG
+        run: |
+          curl -s "https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date" -o star-history.svg
 
       - name: Commit and Push Star History Chart
         uses: stefanzweifel/git-auto-commit-action@v5
