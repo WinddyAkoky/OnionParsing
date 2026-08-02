@@ -4,7 +4,7 @@ A document parsing pipeline that converts PDF/images to structured Markdown via 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=WinddyAkoky/OnionParsing&type=Date)](https://star-history.com/#WinddyAkoky/OnionParsing&Date)
+![Star History Chart](./star-history.svg)
 
 ## License
 
