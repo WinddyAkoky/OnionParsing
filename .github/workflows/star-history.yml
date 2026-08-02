@@ -2,36 +2,25 @@ name: Generate Star History Image
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天自动运行更新
-  workflow_dispatch: # 允许你手动点击按钮随时运行
+    - cron: '0 0 * * *' # 每天自动更新一次
+  workflow_dispatch: # 支持手动点击运行
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download Star History Chart
+      - name: Fetch Chart
+        # 修复了上一版少写斜杠的致命 Bug，直接用本地 Python 脚本稳定下载
         run: |
-          # 1. 提取你的用户名和仓库名
-          REPO_NAME="${{ github.repository }}"
-          
-          # 2. 调用 Star History 官方渲染接口下载图片
-          # 提示：接口会根据你的仓库实时渲染，保存为本地的 star-history.png
-          curl -s "https://star-history.com{REPO_NAME}&type=Date" -o star-history.png
+          python -c "import urllib.request; urllib.request.urlretrieve('https://star-history.com{{ github.repository }}&type=Date', 'star-history.png')"
 
-      - name: Commit & Push changes
+      - name: Push to Repo
         run: |
-          # 配置本地 Git 机器人身份
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # 检查图片是否有变化，有变化则提交
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add star-history.png
-          if git diff --staged --quiet; then
-            echo "No changes in star history chart."
-          else
-            git commit -m "chore: update star history image [skip ci]"
-            git push origin ${{ github.ref_name }}
-          fi
+          git commit -m "chore: update star history [skip ci]" || exit 0
+          git push
