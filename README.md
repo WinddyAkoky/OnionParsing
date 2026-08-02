@@ -4,7 +4,7 @@ A document parsing pipeline that converts PDF/images to structured Markdown via 
 
 ## Star History
 
-[![Star History Chart](https://www.star-history.com/?repos=WinddyAkoky%2FOnionParsing&type=date&legend=top-left)
+![Star History Chart](https://www.star-history.com/?repos=WinddyAkoky%2FOnionParsing&type=date&legend=top-left)
 
 ## License
 
