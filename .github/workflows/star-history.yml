@@ -1,0 +1,25 @@
+name: Generate Star History Image
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天北京时间早上 8 点自动运行更新
+  workflow_dispatch: # 允许你手动点击按钮随时运行
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Star History Image
+        uses: timqian/star-history-action@master
+        with:
+          token: ${{ secrets::STAR_HISTORY_TOKEN }}
+
+      - name: Commit & Push changes
+        uses: Actions-R-Us/push@master
+        with:
+          github_token: ${{ secrets.STAR_HISTORY_TOKEN }}
+          branch: main # 如果你的默认分支是 master，请改为 master
+          message: 'chore: update star history image [skip ci]'
