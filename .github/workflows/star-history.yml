@@ -9,17 +9,29 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Generate Star History Image
-        uses: timqian/star-history-action@master
-        with:
-          token: ${{ secrets.STAR_HISTORY_TOKEN }}
+      - name: Download Star History Chart
+        run: |
+          # 1. 提取你的用户名和仓库名
+          REPO_NAME="${{ github.repository }}"
+          
+          # 2. 调用 Star History 官方渲染接口下载图片
+          # 提示：接口会根据你的仓库实时渲染，保存为本地的 star-history.png
+          curl -s "https://star-history.com{REPO_NAME}&type=Date" -o star-history.png
 
       - name: Commit & Push changes
-        uses: Actions-R-Us/push@master
-        with:
-          github_token: ${{ secrets.STAR_HISTORY_TOKEN }}
-          branch: main # 如果你的默认分支是 master，请改为 master
-          message: 'chore: update star history image [skip ci]'
+        run: |
+          # 配置本地 Git 机器人身份
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # 检查图片是否有变化，有变化则提交
+          git add star-history.png
+          if git diff --staged --quiet; then
+            echo "No changes in star history chart."
+          else
+            git commit -m "chore: update star history image [skip ci]"
+            git push origin ${{ github.ref_name }}
+          fi
